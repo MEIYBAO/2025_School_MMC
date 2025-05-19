@@ -1,0 +1,8 @@
+orderid：骑行订单编号
+bikeid：单车编号
+userid：用户编号
+start_time：骑行开始时间
+start_location_x 和 start_location_y：骑行起始位置的经度和纬度
+end_time：骑行结束时间
+end_location_x 和 end_location_y：骑行结束位置的经度和纬度
+track：骑行的详细轨迹（由多个坐标点构成，用"#"分隔）

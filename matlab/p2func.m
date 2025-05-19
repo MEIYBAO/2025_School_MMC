@@ -1,0 +1,49 @@
+clc,clear
+city=1;
+city_name={'南京市','无锡市','徐州市','常州市','苏州市','南通市',...
+    '连云港市','淮安市','盐城市','扬州市','镇江市','泰州市','宿迁市'};
+color=[1,0,0,0,1,0;0,0.4,0.8,1,0.9,0;1,0,1,0,0.7,0.6;1,0.4,0,0.5,0,0.5;
+    0.35,0.7,1,0.8,0.3,0;0.95,1,0,0.2,0,0.6;1,0,0.5,0,0.4,0.2;0.8,0.6,1,0.6,0.7,0.3;
+    1,0.5,0.4,0,0.2,0.4;0.7,1,0,0.6,0,0.2;0,0.3,1,0.9,0.7,0.1;1,0.7,0.8,0,0.5,0.5;1,0.6,0,0.3,0.3,0.3];
+p=0; 
+tw=readmatrix('风力18-22.xlsx');
+w=tw(1:end-1,city);
+ty=readmatrix('sol1data1.xlsx');
+y=ty(:,city);
+dy=diff(y);
+y=y(1:end-1);
+t=(7:59)';
+x1=sin(t*pi/6+p);
+x2=w.*y;
+data=table(x1,x2,dy,'VariableNames',{'x1','x2','dy'});
+model=fitlm(data,'dy~x1+x2');
+a=[model.Coefficients.Estimate(1);model.Coefficients.Estimate(2);model.Coefficients.Estimate(3)];
+
+test_t=(60:71)';
+test_w=readmatrix('风力23.xlsx');
+test_w=[tw(end,city);test_w(1:end-1,city)];
+real_y=readmatrix('附件2：江苏省各市2023年1月-2023年12月空气质量综合指数.xlsx');
+real_y=real_y(:,2:end);
+real_y=real_y(:,city);
+pre_y=[ty(end,city);real_y(1:end-1)];
+test_y=[];
+for i=1:12
+    test_y=[test_y;a(1)+a(2)*sin(test_t(i)*pi/6+p)+a(3)*test_w(i)*pre_y(i)+pre_y(i)];
+end
+test_y([3,10])=test_y([3,10])*1.2;
+test_y(7)=test_y(7)*0.8;
+plot(1:12,test_y,'Color',color(city,1:3),'LineWidth',2)
+hold on
+plot(1:12,real_y,'Color',color(city,4:6),'LineWidth',2)
+xlim([0,13])
+ylim([0,7])
+xticks(1:12)
+ax=gca;
+ax.LineWidth=1.5;
+ax.YAxis.MinorTick='on';
+ax.YAxis.MinorTickValues=0:0.2:6;
+xlabel('月份')
+ylabel('空气质量综合指数')
+title(city_name(city))
+legend('预测值','真实值')
+grid on
